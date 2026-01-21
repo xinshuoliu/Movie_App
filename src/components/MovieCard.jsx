@@ -1,7 +1,21 @@
 import "../css/MovieCard.css"
 import { useMovieContext } from "../contexts/MovieContext"
+import { useEffect, useState } from "react";
+import { getMovieDetails } from "../services/api";
+
 
 function MovieCard({movie}){
+
+    const [runtime, setRuntime] = useState(null);
+
+    useEffect(() => {
+        async function fetchRuntime() {
+            const details = await getMovieDetails(movie.id);
+            setRuntime(details.runtime);
+        }
+
+        fetchRuntime();
+    }, [movie.id]);
 
     const {isFavorite, addToFavorites, removeFromFavorites} = useMovieContext()
     const favorite = isFavorite(movie.id)
@@ -24,8 +38,20 @@ function MovieCard({movie}){
         <div className="movie-info">
             <h3>{movie.title}</h3>
             <p>{movie.release_date?.split("-")[0]}</p>
+
+            <p className="movie-desc">
+                {movie.overview || "No description available."}
+            </p>
+
+            <p className="movie-runtime">
+                ⏱ {runtime ? `${runtime} min` : "Loading..."}
+            </p>
+
+            <p className="movie-rating">
+                ⭐ {movie.vote_average?.toFixed(1) ?? "N/A"} / 10
+            </p>
+            </div>
         </div>
-    </div>
 }
 
 export default MovieCard
